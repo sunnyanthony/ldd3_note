@@ -47,7 +47,7 @@ rmb/wmb保證在barrier之前的read/write動作都會在後續任何read/write�
 #define set_mb(var, value) do {var = value; mb();} while 0
 //ps. 只有少數平台有set_rmb
 ```
-`do ... while`是讓Marco展開後可以在不同環境下正常運作的慣例。由時候展開Marco會跟前後文不小心結合或讓if else判斷跟預期不同。
+`do ... while`是讓Marco展開後可以在不同環境下正常運作的慣例。有時候展開Marco會跟前後文不小心結合或讓if else判斷跟預期不同。
 
 ## I/O port 用法
 

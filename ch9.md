@@ -105,3 +105,4 @@ GNU libc將可存取I/O port的fuction定義在`<sys/io.h>`。在user-space使�
 * 使用-O option編譯，強制展開inlin fuction
 * 必須使用ioperm() or iopl() system call 來取得I/O port的權限。只能在intel x86上使用這輛個function。
 * program要使用root權限來執行。
+* target plantform上沒有ioperm() or iopl()，可透過/dev/port device file來存取I/O port。通常不太有用

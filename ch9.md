@@ -56,10 +56,12 @@ rmb/wmb保證在barrier之前的read/write動作都會在後續任何read/write�
 
 #### 配置I/O port
 {% method %}
-Allocation I/O port是為了獨佔I/O port的使用，kernel提供了一組allocation interface來索取所需的I/O
+Allocation I/O port是為了獨佔I/O port的使用，kernel提供了一組allocation interface來索取所需的I/O。  
+可透過 /proc/ioports 當中查看被記錄的所有allocation device的address範圍。
 {% sample lang="kernel 2.6" %}
 ```C
 #include <linux/ioport.h>
 struct resource *request_region(unsigned long first, unsigned long n, const char *name);
 ```
+request_region()是最關鍵的方法，告訴kernel想使用的I/O port是從first～first + n，而name是device的名稱。若回傳值為NULL，表示已被別搶先allocate。
 {% endmethod %}

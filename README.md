@@ -1,4 +1,4 @@
-# LDD32的筆記跟API
+# LDD3的筆記跟API
 
 LDD3內容雖然是有點舊(2005年,Linux kernel 2.6v)，不過還是有一定的參考價值。
 會將需要瞭解的內容都放上來，並記錄哪些情況需要使用kernel的那些header filer & struct。

@@ -12,7 +12,16 @@ Linux虛構了一組I/O port的存取機制，即使target plantform的CPU只有
 這是因為讀取I/O registers時，並__不一定是要讀取register的內容值__，而是藉由__read/write的動作__來__改變device__的state。當我們將normal memory的最佳化技術(cache, reschedule instruction, etc.)套用在I/O registers上時就會發生無法預期的結果，這是因為原本安排的I/O行為可能不被正確的執行。     
 
 {% method %}
-要避免compiler將I/O register最佳化，Linux提供的做法是在可被最佳化的指令與不可被最佳化(必須不受更動的在硬體上執行)之間擺放__momory barrier__，並提供了四個Marco
+要避免compiler將I/O register最佳化，Linux提供的做法是在可被最佳化的指令與不可被最佳化(必須不受更動的在硬體上執行)之間擺放__momory barrier__，並提供了四個Marco    
+
+使用方法如下：    
+```C
+writel(dev->registers.addr, io_destination_address);
+writel(dev->registers.size, io_size);
+writel(dev->registers.operation, DEV_READ);
+wmb();
+writel(dev->registers.control, DEV_GO);
+```
 
 {% sample lang="kernel 2.6" %}
 ```c
@@ -21,20 +30,18 @@ void barrier(void);
 ```
 此Marco要求在barrier後的instruction要確實將資料寫到memory之中，而非register或cache。但容許reschedule instruction。
 ```c
-#include <asm/system.h>
-void rmb(void);
-void wmb(void);
-void mb(void);
-void read_barrier_depends(void);
+#include <asm/system.h> / kernel被compile為SMP時，使用smp_*
+void rmb(void); //void smp_rmb(void);
+void wmb(void); //void smp_void wmb(void);
+void mb(void);  //void smp_mb(void);
+void read_barrier_depends(void); //弱化版rmb();
+//void smp_read_barrier_depends(void);
 ```
+rmb/wmb保證在barrier之前的read/write動作都會在後續任何read/write動作之前完成。mb則是同時保證read/write的行為。
+
 {% sample lang="kernel 4.*" %}
 
-{% common %}
-Whatever language you are using, the result will be the same.
-
-```bash
-$ My first method
-```
 {% endmethod %}
+
 
 

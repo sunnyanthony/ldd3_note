@@ -57,6 +57,7 @@ rmb/wmb保證在barrier之前的read/write動作都會在後續任何read/write�
 #### 配置I/O port
 {% method %}
 Allocation I/O port是為了獨佔I/O port的使用，kernel提供了一組allocation interface來索取所需的I/O。  
+
 可透過 /proc/ioports 當中查看被記錄的所有allocation device的address範圍。
 {% sample lang="kernel 2.6" %}
 ```C
@@ -70,3 +71,32 @@ void release_region(unsigned long start, unsigned long n);
 ```
 可使用release_region()來釋放資源。  
 {% endmethod %}
+
+#### 操作I/O port
+對I/O進行read/write時，會涉及到bus的寬度問題，因此對於不同的寬度需要不同的function來存取。  
+對於只支援__MMIO__(memory-mapped I/O)的平台，可將I/O register mapping到memory address，藉此模擬出I/O port。
+  
+當我們看到只有unsigned卻沒有明確型別，表示確切型別隨平台而定。為的是提高移植性。  
+
+並沒有64-bit port I/O，就算是64-bit的系統上，I/O port的address space頂多只有32-bit。
+{% method %}
+Linux kernel在`<asm/io.h>`定義了read/write I/O port的inline function。
+{% sample lang="kernel 2.6" %}
+```C
+#include <asm/io.h>
+unsigned inb(unsigned port);
+void outb(unsigned char byte, unsigned port);
+```
+read/write 1-byte port。
+```C
+unsigned inw(unsigned port);
+void outw(unsigned short word, unsigned port);
+```
+read/write 1-word(16-bit) port。在只支援byte I/O平台上不存在。
+```C
+unsigned inl(unsigned port);
+void outl(unsigned longword, unsigned port);
+```
+read/write 32-bit port。在只支援byte I/O平台上不存在。
+{% endmethod %}
+

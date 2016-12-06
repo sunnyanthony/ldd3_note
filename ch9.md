@@ -39,8 +39,7 @@ void read_barrier_depends(void); //弱化版rmb();
 //void smp_read_barrier_depends(void);
 ```
 rmb/wmb保證在barrier之前的read/write動作都會在後續任何read/write動作之前完成。mb則是同時保證read/write的行為。
-
-{% sample lang="kernel 4.*" %}
+{% sample lang="kernel 4.* " %}
 
 {% endmethod %}
 

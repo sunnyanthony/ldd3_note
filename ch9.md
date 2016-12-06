@@ -64,4 +64,9 @@ Allocation I/O port是為了獨佔I/O port的使用，kernel提供了一組alloc
 struct resource *request_region(unsigned long first, unsigned long n, const char *name);
 ```
 request_region()是最關鍵的方法，告訴kernel想使用的I/O port是從first～first + n，而name是device的名稱。若回傳值為NULL，表示已被別搶先allocate。
+```C
+#include <linux/ioport.h>
+void release_region(unsigned long start, unsigned long n);
+```
+可使用release_region()來釋放資源。  
 {% endmethod %}

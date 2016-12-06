@@ -42,6 +42,10 @@ rmb/wmb保證在barrier之前的read/write動作都會在後續任何read/write�
 {% sample lang="kernel 4.*" %}
 
 {% endmethod %}
-
-
+順帶一提，spin_lock, atomic_t 等同步處理也有memory barrier作用。並有些平台容許一個動作就給予一個barrier，可使用以下Macro：
+```C
+#define set_mb(var, value) do {var = value; mb();} while 0
+//ps. 只有少數平台有set_rmb
+```
+`do ... while`是讓Marco展開後可以在不同環境下正常運作的慣例。
 

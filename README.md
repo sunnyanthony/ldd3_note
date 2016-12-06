@@ -15,6 +15,6 @@ LDD3內容雖然是有點舊(2005年,Linux kernel 2.6v)，不過還是有一定�
   * 也可以從Nachos當中了解作業系統的原理，這部分可以看我另一個<a href="https://www.gitbook.com/book/sunnyanthony/operating-system-concept/details">gitbook</a>
 * Uinx-like programming ＆ environment
   * system call、command 和pipe etc.
-  * 念過Advanced Programming in the UNIX Environment會更好，不過只有少部分有提到這本書的內容
-* Architecture
+  * 念過Advanced Programming in the UNIX Environment會更好，不過只有少部分有提到這本書的內容 ( 我正在看，內容有點多，不過會複習到很多OS的概念 )
+* Computer Architecture
   * 可以參考Computer Architecture A Quantitative Approach ( 這本我還沒看完 )

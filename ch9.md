@@ -100,3 +100,8 @@ void outl(unsigned longword, unsigned port);
 read/write 32-bit port。在只支援byte I/O平台上不存在。
 {% endmethod %}
 
+## 從user-space存取I/O port
+GNU libc將可存取I/O port的fuction定義在`<sys/io.h>`。在user-space使用inb()系列fuction時，須遵守：
+* 使用-O option編譯，強制展開inlin fuction
+* 必須使用ioperm() or iopl() system call 來取得I/O port的權限。只能在intel x86上使用這輛個function。
+* program要使用root權限來執行。

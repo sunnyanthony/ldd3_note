@@ -54,3 +54,13 @@ rmb/wmb保證在barrier之前的read/write動作都會在後續任何read/write�
 ## I/O port 用法
 
 對於device driver而言，存取I/O port為重要的議題。
+
+#### 配置I/O port
+{% method %}
+Allocation I/O port是為了獨佔I/O port的使用，kernel提供了一組allocation interface來索取所需的I/O
+{% sample lang="kernel 2.6" %}
+```C
+#include <linux/ioport.h>
+struct resource *request_region(unsigned long first, unsigned long n, const char *name);
+```
+{% endmethod %}

@@ -3,7 +3,8 @@
 LDD3內容雖然是有點舊(2005年,Linux kernel 2.6v)，不過還是有一定的參考價值。
 會將需要瞭解的內容都放上來，並記錄哪些情況需要使用kernel的那些header file & struct。
 
-這本書是Creative Commons Attribution-ShareAlike 2.0 license授權，可由以下網址取得https://lwn.net/Kernel/LDD3/
+這本書是Creative Commons Attribution-ShareAlike 2.0 license授權，可由以下網址取得https://lwn.net/Kernel/LDD3/  
+在gitbook上的內容，是從我購買的<a href="http://www.oreilly.com.tw/product_linux.php?id=a184_errata">中文版</a>內容搭配英文版所完成的。
 
 閱讀本書需要會以下能力，或搭配輔助：
 * C language

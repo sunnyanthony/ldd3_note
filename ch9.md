@@ -22,7 +22,7 @@ writel(dev->registers.operation, DEV_READ);
 wmb();
 writel(dev->registers.control, DEV_GO);
 ```
-
+這範例是我們希望在開始動作之前，add, size跟operation的三個register先設定好，才會進行control的`write(..., DEV_GO)`。   
 {% sample lang="kernel 2.6" %}
 ```c
 #include <linux/kernel.h>

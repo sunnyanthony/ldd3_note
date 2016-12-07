@@ -100,9 +100,29 @@ void outl(unsigned longword, unsigned port);
 read/write 32-bit port。在只支援byte I/O平台上不存在。
 {% endmethod %}
 
-## 從user-space存取I/O port
+#### 從user-space存取I/O port
 GNU libc將可存取I/O port的fuction定義在`<sys/io.h>`。在user-space使用inb()系列fuction時，須遵守：
 * 使用-O option編譯，強制展開inlin fuction
 * 必須使用ioperm() or iopl() system call 來取得I/O port的權限。只能在intel x86上使用這輛個function。
-* program要使用root權限來執行。
+* program要使用root權限來執行。或危險的設定setuid權限為元。
 * target plantform上沒有ioperm() or iopl()，可透過/dev/port device file來存取I/O port。通常不太有用
+
+#### String操作
+{% method %}
+有些processor還提供能讓一連串同等的bytes/words/longs read/write到同一個I/O port。這就是string instructions，並且它能夠用更快的速度做到C loop的效果。  
+若平台不提供此種指令，linux提供的Marco就會以loop實做。  
+{% sample lang="kernel 2.6" %}
+```C
+#include <asm/io.h>
+void insb(unsigned port, void *addr, unsigned long count);
+void outsb(unsigned port, void *addr, unsigned long count);
+void insw(unsigned port, void *addr, unsigned long count);
+void outsw(unsigned port, void *addr, unsigned long count);
+void insl(unsigned port, void *addr, unsigned long count);
+void outsl(unsigned port, void *addr, unsigned long count);
+```
+insb從port讀取count個bytes，並存放到addr的memory address上。outsb則是寫入。  
+  *b表示bytes(8-bits)*  
+  *w表示words(16-bits word)*  
+  *l表示longs(32-bits long word)*  
+{% endmethod %}

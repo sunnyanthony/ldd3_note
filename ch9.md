@@ -245,6 +245,9 @@ unsigned readl(address); //32-bit
 void writeb(unsigned value, address);
 void writew(unsigned value, address);
 void writel(unsigned value, address);
+/*
+*某些64-bits平台提供readq()&writeq()，可用來處理PCI的quad-word(8-bytes)
+*/
 ```
 上面的是屬於較舊的kernel所使用，較不安全，因為這些functions並沒有型別檢查。
 {% endmethod %}

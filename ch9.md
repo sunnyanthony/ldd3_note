@@ -127,3 +127,39 @@ void outsl(unsigned port, void *addr, unsigned long count);
 ```
 insb從port讀取count個bytes，並存放到addr的memory address上。outsb則是寫入。  
 {% endmethod %}
+
+####I/O暫停
+避免I/O速度較慢而流失data，可插入delay，或是*_p(inb_p...)這種會暫停的function。
+
+####平台相依性
+除了x86外，其他都沒有區分I/O-space跟memory-space。
+```
+IA-32 (x86)
+-x86_64
+The architecture supports all the functions described in this chapter. Port num- bers are of type unsigned short.
+-IA-64 (Itanium)
+All functions are supported; ports are unsigned long (and memory-mapped). String functions are implemented in C.
+-Alpha
+All the functions are supported, and ports are memory-mapped. The implemen- tation of port I/O is different in different Alpha platforms, according to the chipset they use. String functions are implemented in C and defined in arch/ alpha/lib/io.c. Ports are unsigned long.
+-ARM
+Ports are memory-mapped, and all functions are supported; string functions are implemented in C. Ports are of type unsigned int.
+Cris
+M68k
+-M68k-nommu
+Ports are memory-mapped. String functions are supported, and the port type is unsigned char *.
+MIPS
+-MIPS64
+The MIPS port supports all the functions. String operations are implemented with tight assembly loops, because the processor lacks machine-level string I/O. Ports are memory-mapped; they are unsigned long.
+-PA-RISC
+All of the functions are supported; ports are int on PCI-based systems and unsigned short on EISA systems, except for string operations, which use unsigned long port numbers.
+PowerPC
+-PowerPC64
+All the functions are supported; ports have type unsigned char * on 32-bit sys- tems and unsigned long on 64-bit systems.
+-S390
+Similar to the M68k, the header for this platform supports only byte-wide port I/O with no string operations. Ports are char pointers and are memory-mapped.
+-Super-H
+Ports are unsigned int (memory-mapped), and all the functions are supported.
+SPARC
+-SPARC64
+Once again, I/O space is memory-mapped. Versions of the port functions are defined to work with unsigned long ports.
+```

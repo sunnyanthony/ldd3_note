@@ -208,3 +208,43 @@ void iounmap(void * addr);
 ```
 使用ioremap()後需要使用iounmap來釋放。大多數pc上的ioremap()跟ioremap_nocache完全相同。因為所有I/O都是在不可cache的位址上。  
 {% endmethod %}
+####存取I/O memory
+
+{% method %}  
+為了增加移植性，所以要避免使用`ioremap()`回傳的pointer。應該透過`<asm/io.h>`提供的function來存取。
+r表示read memory，w表示write memory。
+{% sample lang="kernel 2.6" %}
+```C
+unsigned int ioread8(void *addr);
+unsigned int ioread16(void *addr);
+unsigned int ioread32(void *addr);
+void iowrite8(u8 value, void *addr);
+void iowrite16(u16 value, void *addr);
+void iowrite32(u32 value, void *addr);
+```
+addr是ioremap()所回傳的address，或是addr + offset。
+```C
+void ioread8_rep(void *addr, void *buf, unsigned long count);
+void ioread16_rep(void *addr, void *buf, unsigned long count);
+void ioread32_rep(void *addr, void *buf, unsigned long count);
+void iowrite8_rep(void *addr, const void *buf, unsigned long count);
+void iowrite16_rep(void *addr, const void *buf, unsigned long count);
+void iowrite32_rep(void *addr, const void *buf, unsigned long count);
+```
+連續重複讀寫__同一個addr__可使用上述的function。注意count是要被寫入的資料大小，buf是存放read/write資料的memory pointer。
+```C
+void memset_io(void *addr, u8 value, unsigned int count);
+void memcpy_fromio(void *dest, void *source, unsigned int count);
+void memcpy_toio(void *dest, void *source, unsigned int count);
+```
+使用上述function才可操作一段連續的memory。
+```C
+unsigned readb(address); //8-bit
+unsigned readw(address); //16-bit
+unsigned readl(address); //32-bit
+void writeb(unsigned value, address);
+void writew(unsigned value, address);
+void writel(unsigned value, address);
+```
+上面的是屬於較舊的kernel所使用，較不安全，因為這些functions並沒有型別檢查。
+{% endmethod %}

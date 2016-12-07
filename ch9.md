@@ -111,6 +111,10 @@ GNU libc將可存取I/O port的fuction定義在`<sys/io.h>`。在user-space使�
 {% method %}
 有些processor還提供能讓一連串同等的bytes/words/longs read/write到同一個I/O port。這就是string instructions，並且它能夠用更快的速度做到C loop的效果。  
 若平台不提供此種指令，linux提供的Marco就會以loop實做。  
+  *b表示bytes(8-bits)*  
+  *w表示words(16-bits word)*  
+  *l表示longs(32-bits long word)*  
+  *要注意big-edian或是little-edian，可能device跟plantform不同  
 {% sample lang="kernel 2.6" %}
 ```C
 #include <asm/io.h>
@@ -122,7 +126,4 @@ void insl(unsigned port, void *addr, unsigned long count);
 void outsl(unsigned port, void *addr, unsigned long count);
 ```
 insb從port讀取count個bytes，並存放到addr的memory address上。outsb則是寫入。  
-  *b表示bytes(8-bits)*  
-  *w表示words(16-bits word)*  
-  *l表示longs(32-bits long word)*  
 {% endmethod %}

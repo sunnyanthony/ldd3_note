@@ -166,4 +166,4 @@ Once again, I/O space is memory-mapped. Versions of the port functions are defin
 ##I/O port的例子
 
 ####Parallel Port的介紹
-![Alt text](/path/to/img.jpg)
+![Figure9-1](./f9_1.png)

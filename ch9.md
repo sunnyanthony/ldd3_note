@@ -251,3 +251,15 @@ void writel(unsigned value, address);
 ```
 上面的是屬於較舊的kernel所使用，較不安全，因為這些functions並沒有型別檢查。
 {% endmethod %}
+
+####Port as I/O memory
+{% method %} 
+為減少I/O port跟I/O memmory之間的存取差異，kernel提供了`ioport_map()`。
+在使用`ioport_map()`之前，仍然要使用`request_region()`來allocatd。
+{% sample lang="kernel 2.6" %}
+```C
+void *ioport_map(unsigned long port, unsigned int count);
+void ioport_unmap(unsigned long port, unsigned int count);
+```
+把count個I/O ports mapping到I/O memory。並回傳這段address的pointer。使用ioport_unmap來解除。
+{% endmethod %}

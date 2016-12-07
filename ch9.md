@@ -163,3 +163,7 @@ SPARC
 -SPARC64
 Once again, I/O space is memory-mapped. Versions of the port functions are defined to work with unsigned long ports.
 ```
+##I/O port的例子
+
+####Parallel Port的介紹
+![Alt text](/path/to/img.jpg)

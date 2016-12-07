@@ -1,6 +1,7 @@
 # Ch9.硬體的操作
 
 ## I/O port and I/O memory
+--------
 通常一個device會有許多registers，並且可以在__一段連續範圍__的address存取到這些registers。這些address會有兩種address space:     
   * Memory address space
   * I/O address space     
@@ -51,7 +52,7 @@ rmb/wmb保證在barrier之前的read/write動作都會在後續任何read/write�
 `do ... while`是讓Marco展開後可以在不同環境下正常運作的慣例。有時候展開Marco會跟前後文不小心結合或讓if else判斷跟預期不同。
 
 ## I/O port 用法
-
+--------
 對於device driver而言，存取I/O port為重要的議題。
 
 #### 配置I/O port
@@ -164,7 +165,7 @@ SPARC
 Once again, I/O space is memory-mapped. Versions of the port functions are defined to work with unsigned long ports.
 ```
 ##I/O port的例子
-
+--------
 ####Parallel Port的介紹
 每台PC都會有兩個parallel port，第一個從0x378開始，第二個是從0x278開始。基本是由三個8-bits port register構成：
 * data port
@@ -180,6 +181,7 @@ Figure 9-1是parallel port的規格。有12個ouput跟5個input。並且1,4,11,1
 自行去看ldd3提供的short driver，並可在板子上插入LED來觀察資料在pin的傳遞。
 
 ##使用I/O memory
+--------
 與device互動的主要機制是將device的registers跟memory mapping到CPU的memory-space。  
 I/O memory不一定受到page table的控管，主要是看plantform跟bus來決定。必須要使用page table的I/O memory的情況下，driver必須要告知kernel將physical address搬入到driver的可見範圍(這表示需要先使用__ioremap()__)。  
 不管要不要用page table(ioremap)，都要避免直接使用一般的pointer來存取I/O memory。

@@ -263,3 +263,5 @@ void ioport_unmap(unsigned long port, unsigned int count);
 ```
 把count個I/O ports mapping到I/O memory。並回傳這段address的pointer。使用ioport_unmap來解除。
 {% endmethod %}
+####ISA
+自己去看ldd3的範例程式，這邊不贅述。

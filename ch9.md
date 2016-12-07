@@ -197,4 +197,12 @@ void release_mem_region(unsigned long start, unsigned long len);
 int check_mem_region(unsigned long start, unsigned long len);
 ```
 要求kernel將start ~ start + len的address保留/歸還/檢查是否被佔用，如果失敗了會得到NULL。name是裝置名稱。  
+```C
+#include <asm/io.h>
+void *ioremap(unsigned long phys_addr, unsigned long size);
+void *iounmap(unsigned long phys_addr, unsigned long size);
+void *ioremap_nocache(unsigned long phys_addr, unsigned long size);
+void iounmap(void * addr);
+```
+使用ioremap()後需要使用iounmap來釋放。大多數pc上的ioremap()跟ioremap_nocache完全相同。因為所有I/O都是在不可cache的位址上。  
 {% endmethod %}

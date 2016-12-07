@@ -166,5 +166,15 @@ Once again, I/O space is memory-mapped. Versions of the port functions are defin
 ##I/O port的例子
 
 ####Parallel Port的介紹
-![Figure9-1](f9_1.png)  
-每台PC都會有兩個parallel port，第一個從0x378開始，第二個是從0x278開始。
+每台PC都會有兩個parallel port，第一個從0x378開始，第二個是從0x278開始。基本是由三個8-bits port register構成：
+* data port
+  * 第一個是雙向data register，連結到pin2 ~ pin9
+* status port
+  * 第二個是read-only，可得到device的狀態
+* control port
+  * 最後一個是write-only，決定是否要發出hardware interrupt等控制  
+
+Figure 9-1是parallel port的規格。有12個ouput跟5個input。並且1,4,11,17的path上有inverter。並且control port的0x10用來決定interrupt。  
+![Figure9-1](f9_1.jpg)  
+  
+自行去看ldd3提供的short driver，並可在板子上插入LED來觀察資料在pin的傳遞。

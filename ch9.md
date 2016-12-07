@@ -178,3 +178,23 @@ Figure 9-1是parallel port的規格。有12個ouput跟5個input。並且1,4,11,1
 ![Figure9-1](f9_1.jpg)  
   
 自行去看ldd3提供的short driver，並可在板子上插入LED來觀察資料在pin的傳遞。
+
+##使用I/O memory
+與device互動的主要機制是將device的registers跟memory mapping到CPU的memory-space。  
+I/O memory不一定受到page table的控管，主要是看plantform跟bus來決定。必須要使用page table的I/O memory的情況下，driver必須要告知kernel將physical address搬入到driver的可見範圍(這表示需要先使用__ioremap()__)。  
+不管要不要用page table(ioremap)，都要避免直接使用一般的pointer來存取I/O memory。
+
+####I/O Memory Allocation and Mapping
+{% method %}
+在使用I/O memory之前需要先allocate kernel的存取權。可使用request_mem_region Macro。  
+check就算成功也有可能在要配置時失敗，所以不如不要用。  
+剛配置好的I/O memory還需要`ioremap()`將I/O memory mapping到virtual address，也就是指定virtual address到I/O memory regions。  
+{% sample lang="kernel 2.6" %}
+```C
+#include <linux/ioport.h>
+struct resource *request_mem_region(unsigned long start, unsigned long len, char *name);
+void release_mem_region(unsigned long start, unsigned long len);
+int check_mem_region(unsigned long start, unsigned long len);
+```
+要求kernel將start ~ start + len的address保留/歸還/檢查是否被佔用，如果失敗了會得到NULL。name是裝置名稱。  
+{% endmethod %}

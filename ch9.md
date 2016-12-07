@@ -166,4 +166,5 @@ Once again, I/O space is memory-mapped. Versions of the port functions are defin
 ##I/O port的例子
 
 ####Parallel Port的介紹
-![Figure9-1](/f9_1.png)
+![Figure9-1](f9_1.png)  
+每台PC都會有兩個parallel port，第一個從0x378開始，第二個是從0x278開始。

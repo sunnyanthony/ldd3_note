@@ -6,7 +6,7 @@ CPU不可能枯等Devices的events，因此OS必須要提供一種方式讓Devic
 
 ---
 
-### Preparing the Parallel Port
+## Preparing the Parallel Port
 
 
 

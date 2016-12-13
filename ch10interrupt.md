@@ -26,7 +26,8 @@ DESCRIPTION
 由此可知，引起interrupr的最簡單方式是將pin 9跟pin 10連接起來。只要data的MSB (most significant bit)也就是pin 9，只要將資料寫入到/dev/short0，就可以產生interrupr。但是寫入的資料室ASCII將無法產生interrupr，這是因為ASCII的MSB都是0。   
 {% sample lang="Figure" %}
 ![Figure9-1](f9_1.jpg)  
-{% endmethod %}
+{% endmethod %}  
 
+---
 
 

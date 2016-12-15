@@ -29,5 +29,45 @@ DESCRIPTION
 {% endmethod %}  
 
 ---
-
-
+## Installing an Interrupt Handler
+{% method %}
+System上必須要有___interrupt handler___(___interrupt service routine，ISR___)才能夠處理interrupt。若是沒有相對應的ISR，則CPU只會回傳ACK signal給device，當作處理interrupt的方式。
+在某些PC上interrupt channel(___interrupt request，IRQ___)只有15或16條，所以需要小心處理避免浪費。而Linux kernel內部有一個registry of interrupt lines，用來記錄IRQ跟ISR之間的對應。若要使用特定的IRQ module的話，就必須先向kernel註冊。大部分情況底下，module會傾向多個drivers共用一組IRQ。
+{% sample lang="kernel 2.6" %}
+```C
+#include <linux/interrupt.h>
+int request_irq(unsigned int irq,
+                irqreturn_t (*handler)(int, void *, struct pt_regs *),
+                unsigned long flags,
+                const char *dev_name,
+                void *dev_id);
+void free_irq(unsigned int irq, void *dev_id);
+```
+透過`request_irq`來註冊IRQ，並且在失敗的時候會取得負數的錯誤碼，常見的錯誤碼是 -EBUSY，這是IRQ已經被其他driver給佔用。並使用`free_irq`來歸還已註冊的IRQ。
+```C
+unsigned int irq
+```
+想要取得的interrupt編號。
+```C 
+irqreturn_t (*handler)(int, void *, struct pt_regs *)
+```
+指向要被處理的ISR function。
+```
+unsigned long flags
+//-------------------------
+SA_INTERRUPT     表示要安裝的ISR是快速型，在中段失效期間執行完ISR的工作
+SA_SHIRQ         代表是否可以被不同device共享
+SA_SAMPLE_RANDOM 表示interrupt對entropy pool有所貢獻(幫助產生亂數)，並且被使用在/dev/random和/dev/urandom
+                 在有週期性的或是可能被攻擊的device不得設立此flag
+```
+關於管理中斷選項的mask。
+```C
+const char *dev_name
+```
+這字串被使用在/proc/interrupts底下，用來表示ISR。
+```C
+void *dev_id
+```
+一個識別碼，用來共享IRQ。在free_irq會使用到。  
+此辨識碼可用來辨識是哪一個device發出的interrupr。若想要獨佔IRQ，可將此識別碼設為NULL，也可將它指向device struct。
+{% endmethod %}  

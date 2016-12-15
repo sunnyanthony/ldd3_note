@@ -90,6 +90,7 @@ if (short_irq >= 0) {
 ```
 #### The /proc Interface  
  當CPU接收到hardware interrupt時，對應的IRQ中的counter就會被累加一次。可以從/proc/interrupts當中看各個device的出中斷次數。ˋ面試書上的範例：  
+```
 root@montalcino:/bike/corbet/write/ldd3/src/short# m /proc/interrupts  
         CPU0       CPU1   
   0: 4848108        34  IO-APIC-edge timer      
@@ -102,3 +103,4 @@ NMI:       0         0
 LOC: 4848187   4848186  
 ERR:       0  
 MIS:       0  
+```

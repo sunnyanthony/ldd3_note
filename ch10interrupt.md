@@ -21,6 +21,7 @@ DESCRIPTION
    the _p-suffix functions pause until the I/O completes.
 ```  
 {% endmethod %}  
+ 
 {% method %}
 當interrupt功能被開啟後，parallel interface會在pin 10(the so-called ACK bit)發生了electrical signal(電壓由low到high)的時候產生了一個interrupt signal。
 由此可知，引起interrupr的最簡單方式是將pin 9跟pin 10連接起來。只要data的MSB (most significant bit)也就是pin 9，只要將資料寫入到/dev/short0，就可以產生interrupr。但是寫入的資料室ASCII將無法產生interrupr，這是因為ASCII的MSB都是0。   
@@ -71,3 +72,18 @@ void *dev_id
 一個識別碼，用來共享IRQ。在free_irq會使用到。  
 此辨識碼可用來辨識是哪一個device發出的interrupr。若想要獨佔IRQ，可將此識別碼設為NULL，也可將它指向device struct。
 {% endmethod %}  
+IRQ盡量在要使用的時候才去註冊ISR，因為IRQ是限量的，若在一開始就註冊很容易閒置而浪費。所以在device第異次被啟用時才註冊IRQ，這樣可以減少佔用浪費的情況。
+```C
+if (short_irq >= 0) {
+   result = request_irq(short_irq, short_interrupt,
+   SA_INTERRUPT, "short", NULL);
+   if (result) {
+       printk(KERN_INFO "short: can't get assigned irq %i\n",
+              short_irq);
+       short_irq = -1;
+   }
+   else { /* actually enable it -- assume this *is* a parallel port */
+       outb(0x10,short_base+2);
+   }
+}
+```

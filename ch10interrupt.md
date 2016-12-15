@@ -34,7 +34,7 @@ void outb(unsigned char value, unsigned short int port);
 System上必須要有___interrupt handler___(___interrupt service routine，ISR___)才能夠處理interrupt。若是沒有相對應的ISR，則CPU只會回傳ACK signal給device，當作處理interrupt的方式。
 在某些PC上interrupt channel(___interrupt request，IRQ___)只有15或16條，所以需要小心處理避免浪費。而Linux kernel內部有一個registry of interrupt lines，用來記錄IRQ跟ISR之間的對應。若要使用特定的IRQ module的話，就必須先向kernel註冊。大部分情況底下，module會傾向多個drivers共用一組IRQ。
 {% sample lang="kernel 2.6" %}
-```c
+```C
 #include <linux/interrupt.h>
 int request_irq(unsigned int irq,
                 irqreturn_t (*handler)(int, void *, struct pt_regs *),

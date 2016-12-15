@@ -105,4 +105,6 @@ LOC:      4848187   4848186
 ERR:            0  
 MIS:            0  
 ```
-Linux盡量讓interrut集中在CPU0，主要是因為想提升cache的hit rate。在大型系統當中，有時也會分散interrupt在不同CPU來減少ISR的負擔。觸發方式事kernel跟PCI之間都行為。
+Linux盡量讓interrut集中在CPU0，主要是因為想提升cache的hit rate。在大型系統當中，有時也會分散interrupt在不同CPU來減少ISR的負擔。觸發方式事kernel跟PCI之間都行為。       
+
+/proc/stat記錄了以較低階的interrupt次數資訊。裡面記載了開機到現在的資訊，而/proc/interrupts只會記錄開機到現在目前在使用的device的次數。

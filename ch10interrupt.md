@@ -90,17 +90,19 @@ if (short_irq >= 0) {
 ```
 #### The /proc Interface  
  當CPU接收到hardware interrupt時，對應的IRQ中的counter就會被累加一次。可以從/proc/interrupts當中看各個device的出中斷次數。ˋ面試書上的範例：  
-```
+```bash
 root@montalcino:/bike/corbet/write/ldd3/src/short# m /proc/interrupts  
-        CPU0       CPU1   
-  0: 4848108        34  IO-APIC-edge timer      
-  2:       0         0  XT-PIC cascade  
-  8:       3         1  IO-APIC-edge rtc  
- 10:    4335         1  IO-APIC-level aic7xxx  
- 11:    8903         0  IO-APIC-level uhci_hcd  
- 12:      49         1  IO-APIC-edge i8042  
-NMI:       0         0  
-LOC: 4848187   4848186  
-ERR:       0  
-MIS:       0  
+#IRQ編號                      觸發方式        ISR名稱
+            CPU0       CPU1   
+  0:      4848108        34  IO-APIC-edge    timer      
+  2:            0         0  XT-PIC          cascade  
+  8:            3         1  IO-APIC-edge    rtc  
+ 10:         4335         1  IO-APIC-level   aic7xxx  
+ 11:         8903         0  IO-APIC-level   uhci_hcd  
+ 12:           49         1  IO-APIC-edge    i8042  
+NMI:            0         0  
+LOC:      4848187   4848186  
+ERR:            0  
+MIS:            0  
 ```
+Linux盡量讓interrut集中在CPU0，主要是因為想提升cache的hit rate。在大型系統當中，有時也會分散interrupt在不同CPU來減少ISR的負擔。觸發方式事kernel跟PCI之間都行為。

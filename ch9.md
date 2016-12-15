@@ -16,7 +16,7 @@ Linux虛構了一組I/O port的存取機制，即使target plantform的CPU只有
 要避免compiler將I/O register最佳化，Linux提供的做法是在可被最佳化的指令與不可被最佳化(必須不受更動的在硬體上執行)之間擺放__momory barrier__，並提供了四個Marco    
 
 使用方法如下：    
-```C
+```c
 writel(dev->registers.addr, io_destination_address);
 writel(dev->registers.size, io_size);
 writel(dev->registers.operation, DEV_READ);
@@ -45,7 +45,7 @@ rmb/wmb保證在barrier之前的read/write動作都會在後續任何read/write�
 {% endmethod %}
 
 順帶一提，spin_lock, atomic_t 等同步處理也有memory barrier作用。並有些平台容許一個動作就給予一個barrier，可使用以下Macro：
-```C
+```c
 #define set_mb(var, value) do {var = value; mb();} while 0
 //ps. 只有少數平台有set_rmb
 ```

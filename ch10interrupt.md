@@ -123,6 +123,20 @@ if (short_irq < 0) /* not yet specified: force the default on */
 ```
 探測的方法有兩種:
 * Kernel-assisted probing
+{% method %}
+Linux提供了一組僅適用於獨佔而不共用的中斷，因為支援共用interrupt的device童常會提供其他管道讓device driver知道device的IRQ。  
+{% sample lang="kernel 2.6" %}
+```c
+include <linux/interrupt.h>;
+unsigned long probe_irq_on(void);
+```
+回傳一個mask，表示尚未被佔用的IRQ。在呼叫`probe_irq_on`後，device至少要發出一次中斷。在呼叫`probe_irq_off`之前必須關掉interrupt。
+```c
+int probe_irq_off(unsigned long);
+```
+知道了IRQ之後，device driver可以呼叫此function，並且回傳由`probe_irq_on`所得到的mask。但是在呼叫`probe_irq_on`跟回傳mask之間沒有interrupt，則`probe_irq_off`會回傳0。若是超過一次以上的interrupt就會回傳負數，因為可能同時觸發多個devices。  
+{% endmethod %}  
+以下示範利用`probe_irq_on`跟`probe_irq_off`來輔助。
 ```c
 int count = 0;
 do {
@@ -146,6 +160,7 @@ do {
 if (short_irq < 0)
    printk("short: probe failed %i times, giving up\n", count);
 ```
+在許多平台上Kernel-assisted probing只是空殼。總而言之，這是一種小聰明的方法。
 * Do-it-yourself probing
 ```c
 

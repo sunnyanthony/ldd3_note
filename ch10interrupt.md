@@ -111,7 +111,7 @@ Linux盡量讓interrut集中在CPU0，主要是因為想提升cache的hit rate�
 
 #### Autodetecting the IRQ Number
 
-有兩種方式可以找出目標device的IRQ，第一種是要糗user在載入module時只定IRQ number，但是user通常不知道IRQ number(可能device不是user設定或是device沒有jumperless)。所以第二種，自動探測IRQ的功能就被提出。  
+有兩種方式可以找出目標device的IRQ，第一種是要user在載入module時只定IRQ number，但是user通常不知道IRQ number(可能device不是user設定或是device沒有jumperless)。所以第二種，自動探測IRQ的功能就被提出。  
 在x86架構中，第一組Serial port的慣例是0x3F8(I/O-based address)，和IRQ 4的組合。第二組Serial port是0x2F8和IRQ 3組合。所以只要知道I/O-based address就可以得到對應的IQR。像是下面例子:
 ```c
 if (short_irq < 0) /* not yet specified: force the default on */

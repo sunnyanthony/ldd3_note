@@ -68,7 +68,7 @@ void *dev_id
 ```
 一個識別碼，用來共享IRQ。在free_irq會使用到。  
 此辨識碼可用來辨識是哪一個device發出的interrupr。若想要獨佔IRQ，可將此識別碼設為NULL，也可將它指向device struct。
-{% endmethod %}  
+{% endmethod %}    
 IRQ盡量在要使用的時候才去註冊ISR，因為IRQ是限量的，若在一開始就註冊很容易閒置而浪費。所以在device第異次被啟用時才註冊IRQ，這樣可以減少佔用浪費的情況。以下是一個只有快速型的範例：
 ```c
 if (short_irq >= 0) {

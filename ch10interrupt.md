@@ -29,6 +29,7 @@ void outb(unsigned char value, unsigned short int port);
 
 ---
 ## Installing an Interrupt Handler
+
 {% method %}
 System上必須要有___interrupt handler___(___interrupt service routine，ISR___)才能夠處理interrupt。若是沒有相對應的ISR，則CPU只會回傳ACK signal給device，當作處理interrupt的方式。
 在某些PC上interrupt channel(___interrupt request，IRQ___)只有15或16條，所以需要小心處理避免浪費。而Linux kernel內部有一個registry of interrupt lines，用來記錄IRQ跟ISR之間的對應。若要使用特定的IRQ module的話，就必須先向kernel註冊。大部分情況底下，module會傾向多個drivers共用一組IRQ。
@@ -42,7 +43,6 @@ int request_irq(unsigned int irq,
                 void *dev_id);
 void free_irq(unsigned int irq, void *dev_id);
 ```
-{% sample lang="kernel 2.6" %}
 透過`request_irq`來註冊IRQ，並且在失敗的時候會取得負數的錯誤碼，常見的錯誤碼是 -EBUSY，這是IRQ已經被其他driver給佔用。並使用`free_irq`來歸還已註冊的IRQ。
 ```c
 unsigned int irq

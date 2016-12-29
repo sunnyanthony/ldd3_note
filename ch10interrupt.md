@@ -226,3 +226,20 @@ if (short_irq < 0)
    * `SA_INTERRUPT` flag
    
 #### The internals of interrupt handling on the x86
+interrupt機制可在entry.S找到。  
+每一個可能的IRQ都對應到一個曉program。這些program將IRQ編號放入stack中，然後跳到一個common segment，這個segment會呼叫`do_IRQ`(irq.c)。  
+do_IRQ()會執行以下步驟 :
+* Acknowledge interrupt，讓interrupt controller知道CPU已經接收
+* 取得IRQ number的spin_lock，使得此IRQ不被其他CPU執行
+* 將`IRQ_WAITING`bit設定為0，然後尋找IRQ的ISR (handler(__s__))
+* 呼叫`handle_IRQ_event()`執行找到的ISR
+   * 判斷有無SA_INTERRUPT
+   * 恢復hardware interrupt
+* 執行ISR
+* 執行software interrupt(trap)，以及善後工作
+   * 若ISR有wake_up()抹個process，最後要執行的一件是可能是schedule()
+  
+在probing IRQ中，是利用還沒有安裝ISR的IRQ當中的`IRQ_WAITING`。當發生interrupt時，do_IRQ()會將其設為0，然後才return。當device呼叫probe_irq_off(),只要檢查IRQ的IRQ_WAITING為0，即可得知。  
+
+---
+## Implementing a Handler

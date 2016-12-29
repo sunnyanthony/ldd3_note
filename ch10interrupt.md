@@ -20,13 +20,10 @@ void outb(unsigned char value, unsigned short int port);
    the _p-suffix functions pause until the I/O completes.*/
 ```  
 {% endmethod %}  
- 
-{% method %}
 當interrupt功能被開啟後，parallel interface會在pin 10(the so-called ACK bit)發生了electrical signal(電壓由low到high)的時候產生了一個interrupt signal。
 由此可知，引起interrupr的最簡單方式是將pin 9跟pin 10連接起來。只要data的MSB (most significant bit)也就是pin 9，只要將資料寫入到/dev/short0，就可以產生interrupr。但是寫入的資料室ASCII將無法產生interrupr，這是因為ASCII的MSB都是0。   
 {% sample lang="Figure" %}
 ![Figure9-1](f9_1.jpg)  
-{% endmethod %}  
 
 ---
 ## Installing an Interrupt Handler
@@ -43,6 +40,7 @@ int request_irq(unsigned int irq,
                 void *dev_id);
 void free_irq(unsigned int irq, void *dev_id);
 ```
+{% sample lang="kernel 2.6" %}
 透過`request_irq`來註冊IRQ，並且在失敗的時候會取得負數的錯誤碼，常見的錯誤碼是 -EBUSY，這是IRQ已經被其他driver給佔用。並使用`free_irq`來歸還已註冊的IRQ。
 ```c
 unsigned int irq

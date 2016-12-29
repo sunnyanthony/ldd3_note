@@ -173,7 +173,7 @@ irqreturn_t short_probing(int irq, void *dev_id, struct pt_regs *regs)
    return IRQ_HANDLED;
 }
 ```
-
+下面可以看到，這邊使用trials來記錄要被測試的IRQ，並將註冊須可放到tried當中。在do...while當中去觸發interrupt，然後handler會去更動short_irq，這樣就可以得知IRQ。我也們可以測試所有IRQ，在`<asm/irq.h>`當中有記錄IRQ的個數(`NR_IRQS`)。
 ```c
 int trials[ ] = {3, 5, 7, 9, 0};
 int tried[ ] = {0, 0, 0, 0, 0};

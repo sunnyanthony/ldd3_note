@@ -136,6 +136,7 @@ int probe_irq_off(unsigned long);
 ```
 知道了IRQ之後，device driver可以呼叫此function，並且回傳由`probe_irq_on`所得到的mask。但是在呼叫`probe_irq_on`跟回傳mask之間沒有interrupt，則`probe_irq_off`會回傳0。若是超過一次以上的interrupt就會回傳負數，因為可能同時觸發多個devices。  
 {% endmethod %}  
+
 以下示範利用`probe_irq_on`跟`probe_irq_off`來輔助。
 ```c
 int count = 0;
@@ -160,7 +161,8 @@ do {
 if (short_irq < 0)
    printk("short: probe failed %i times, giving up\n", count);
 ```
-在許多平台上Kernel-assisted probing只是空殼。總而言之，這是一種小聰明的方法。
+在許多平台上Kernel-assisted probing只是空殼。總而言之，這是一種小聰明的方法。  
+
 * Do-it-yourself probing          
 可由driver自動完成。如果使用probe=2(short module)載入module時，driver會probing IRQ的值。    
 先啟動尚未使用的interrupt，用parallel device來說，IRQ必為3、5、7、9的其中一個，因此我們只要probing這四個即可。  

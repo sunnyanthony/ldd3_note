@@ -227,7 +227,7 @@ if (short_irq < 0)
    
 #### The internals of interrupt handling on the x86
 interrupt機制可在entry.S找到。  
-每一個可能的IRQ都對應到一個曉program。這些program將IRQ編號放入stack中，然後跳到一個common segment，這個segment會呼叫`do_IRQ`(irq.c)。  
+每一個可能的IRQ都對應到一個小program。這些program將IRQ編號放入stack中，然後跳到一個common segment，這個segment會呼叫`do_IRQ`(irq.c)。  
 do_IRQ()會執行以下步驟 :
 * Acknowledge interrupt，讓interrupt controller知道CPU已經接收
 * 取得IRQ number的spin_lock，使得此IRQ不被其他CPU執行

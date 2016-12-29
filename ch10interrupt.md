@@ -71,7 +71,8 @@ void *dev_id
 一個識別碼，用來共享IRQ。在free_irq會使用到。  
 此辨識碼可用來辨識是哪一個device發出的interrupr。若想要獨佔IRQ，可將此識別碼設為NULL，也可將它指向device struct。
 {% endmethod %}    
-IRQ盡量在要使用的時候才去註冊ISR，因為IRQ是限量的，若在一開始就註冊很容易閒置而浪費。所以在device第異次被啟用時才註冊IRQ，這樣可以減少佔用浪費的情況。以下是一個只有快速型的範例：
+IRQ盡量在要使用的時候才去註冊ISR，因為IRQ是限量的，若在一開始就註冊很容易閒置而浪費。所以在device第異次被啟用時才註冊IRQ，這樣可以減少佔用浪費的情況。以下是一個只有快速型的範例：  
+
 ```c
 if (short_irq >= 0) {
    result = request_irq(short_irq, short_interrupt,
@@ -88,6 +89,7 @@ if (short_irq >= 0) {
    }
 }
 ```
+
 #### The /proc Interface  
  當CPU接收到hardware interrupt時，對應的IRQ中的counter就會被累加一次。可以從/proc/interrupts當中看各個device的出中斷次數。ˋ面試書上的範例：  
 ```bash
@@ -212,3 +214,15 @@ for (i = 0; trials[i]; i++)
 if (short_irq < 0)
  printk("short: probe failed %i times, giving up\n", count);
 ```
+
+#### Fast and Slow Handlers
+* 慢速
+   * 工作時間無法在下次interrupt之前完成
+   * 需要符合reentrant
+   * 處理interrupt期間，就要恢復interrupt的接收
+* 快速
+   * 迅速完成工作
+   * ISR不受其他interrupt干擾
+   * `SA_INTERRUPT` flag
+   
+#### The internals of interrupt handling on the x86

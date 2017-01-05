@@ -351,3 +351,36 @@ ssize_t short_i_write (struct file *filp, const char __user *buf, size_t count,
 若ISR能處理，則`handled`必為非0。
 {% endmethod %}  
 
+#### Enabling and Disabling Interrupts
+在持有spin_lock時彆須讓interrupt失效，否則會造成dead lock。
+##### Disabling a single interrupt
+{% method %}
+大部分interrupt都是共享的，因此很少使用到。  
+作用的對象為PIC(programmable interrupt controller)，並非CPU。在PIC上有一組register決定IRQ是否能通知道CPU。
+{% sample lang="kernel 2.6" %}
+```c
+#include <asm/irq.h>
+void disable_irq(int irq); //可能遇到dead lock
+void disable_irq_nosync(int irq); //需自行處理race condition
+void enable_irq(int irq);
+```
+這三個kernel API是用來改變PIC register的特定bit。這是因為在SMP上使用disable_irq()，則所有CPU都不會收到此IRQ的signal。並且呼叫幾次`disable_irq`就需要呼叫`enable_irq`幾次。但盡量不要在interrupt處理中恢復自己的IRQ。
+{% endmethod %}  
+
+#####Disabling all interrupts
+{% method %}
+Disable全部的IRQ interrupt。
+跟`disable_irq`不同，`local_irq_disable`不會記錄次數，若有多個function要disable，則使用`local_irq_save()`。
+{% sample lang="kernel 2.6" %}
+```c
+#include <asm/system.h>)
+void local_irq_save(unsigned long flags);
+void local_irq_disable(void);
+void local_irq_restore(unsigned long flags);
+void local_irq_enable(void);
+```
+irq_save是先將interrupt狀態存入flags後才disable CPU的interrupt接收。  
+irq_disable是直接disable不儲存狀態。
+
+{% endmethod %}  
+

@@ -243,3 +243,11 @@ do_IRQ()會執行以下步驟 :
 
 ---
 ## Implementing a Handler
+ISR必須遵守:
+* 與kernel timer一樣的限制
+* 不能與user space傳輸資料
+* 不能導致sleep
+* 只能使用GFP_ATOMIC的flag (memory allocate)
+* 不能使用semaphore (使用spin_lock)
+* 不能呼叫schedule()
+ISR的第一步通常是改變interface board上的bit，這是因為hardware送出interrupt後會直到interrupt-pending的bit被clean後才會再度發出interrut。

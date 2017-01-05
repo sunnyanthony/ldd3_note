@@ -249,5 +249,105 @@ ISR必須遵守:
 * 不能導致sleep
 * 只能使用GFP_ATOMIC的flag (memory allocate)
 * 不能使用semaphore (使用spin_lock)
-* 不能呼叫schedule()
-ISR的第一步通常是改變interface board上的bit，這是因為hardware送出interrupt後會直到interrupt-pending的bit被clean後才會再度發出interrut。
+* 不能呼叫schedule()    
+
+ISR的第一步通常是改變interface board上的bit，這是因為__大部份__hardware送出interrupt後會直到interrupt-pending的bit被clean後才會再度發出interrupt。  
+當發生interrupt時，通常是某個user space的process正在__wait event__。因此用ISR來wake up等待中的process是最常見的。    
+
+ISR必須要在最典時間內完成畢要的job，若是要花長時間處理，可使用tasklet或放入scheduler當中(後續會提到)。
+```c
+irqreturn_t short_interrupt(int irq, void *dev_id, struct pt_regs *regs)
+{
+ struct timeval tv;
+ int written;
+ do_gettimeofday(&tv);
+ /* Write a 16 byte record. Assume PAGE_SIZE is a multiple of 16 */
+ written = sprintf((char *)short_head,"%08u.%06u\n",
+ (int)(tv.tv_sec % 100000000), (int)(tv.tv_usec));
+ BUG_ON(written != 16);
+ short_incr_bp(&short_head, written);
+ wake_up_interruptible(&short_queue); /* awake any reading process */
+ return IRQ_HANDLED;
+}
+```
+可以看到short module在最後處理結束時，喚醒等代讀取short的process。
+```c
+static inline void short_incr_bp(volatile unsigned long *index, int delta)
+{
+ unsigned long new = *index + delta;
+ barrier( ); /* Don't optimize these two together */
+ *index = (new >= (short_buffer + PAGE_SIZE)) ? short_buffer : new;
+}
+```
+最麻煩的地方是short_buffer，因為是global resource，若不想使用lock，則需要使用local variable先算出pointer，然後才寫入。並且使用barrier()，避免compiler更動我們的順序。    
+
+以下示read跟write的方法
+```c
+ssize_t short_i_read (struct file *filp, char __user *buf, size_t count,
+ loff_t *f_pos)
+{
+ int count0;
+ DEFINE_WAIT(wait);
+ while (short_head = = short_tail) {
+ prepare_to_wait(&short_queue, &wait, TASK_INTERRUPTIBLE);
+ if (short_head = = short_tail)
+ schedule( );
+ finish_wait(&short_queue, &wait);
+ if (signal_pending (current)) /* a signal arrived */
+ return -ERESTARTSYS; /* tell the fs layer to handle it */
+ }
+ /* count0 is the number of readable data bytes */
+ count0 = short_head - short_tail;
+ if (count0 < 0) /* wrapped */
+ count0 = short_buffer + PAGE_SIZE - short_tail;
+ if (count0 < count) count = count0;
+ if (copy_to_user(buf, (char *)short_tail, count))
+ return -EFAULT;
+ short_incr_bp (&short_tail, count);
+ return count;
+}
+ssize_t short_i_write (struct file *filp, const char __user *buf, size_t count,
+ loff_t *f_pos)
+{
+ int written = 0, odd = *f_pos & 1;
+ unsigned long port = short_base; /* output to the parallel data latch */
+ void *address = (void *) short_base;
+ if (use_mem) {
+ while (written < count)
+ iowrite8(0xff * ((++written + odd) & 1), address);
+ } else { while (written < count)
+ outb(0xff * ((++written + odd) & 1), port);
+ }
+ *f_pos += count;
+ return written;
+}
+```
+在此部贅述read跟write。
+#### Handler Arguments and Return Value
+{% method %}
+
+`irqreturn_t (*handler)(int, void *, struct pt_regs *)`有三個parameter:
+* `int irq`
+ * IRQ number
+* `void *dev_id`
+ * client data
+ * 讓device driver不需要額外處理即可point到同類型的device，範例如下:
+ ```c
+ static void sample_open(struct inode *inode, struct file *filp)
+{
+ struct sample_dev *dev = hwinfo + MINOR(inode->i_rdev);
+ request_irq(dev->irq, sample_interrupt,
+ 0 /* flags */, "sample", dev /* dev_id */);
+ /*....*/
+ return 0;
+}
+ ```
+* `struct pt_regs *regs`
+ * 存放CPU處理interrupt前的register狀態
+  
+{% sample lang="kernel 2.6" %}
+`IRQ_RETVAL(handled);`
+此macro使用來設定ISR的回傳值。若device發出的interrupt是需要處理的，則回傳IRQ_HANDLED，否則回傳IRQ_NONE。  
+若ISR能處理，則`handled`必為非0。
+{% endmethod %}  
+

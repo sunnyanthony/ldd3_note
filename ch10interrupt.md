@@ -384,3 +384,17 @@ irq_disable是直接disable不儲存狀態。
 
 {% endmethod %}  
 
+---
+## Top and Bottom Halves
+
+Linux是將ISR分成兩個部分來執行
+* Top Half
+ * 使用`request_irq()`處理interrupt時必要的job
+* Bottom Half
+ * Top half會把一個function交付給scheduler，後續執行
+  
+Bottom Half允許interrupt的發生，可能會執行wake up process、起動其他I/O等等。而Top half通常只講device上的data放到buffer當中，並安排bottom half function。  
+
+以網卡為例，當接受到新packet，top half會先把NIC上的packet取出並交付給 protocol layer。Bottom half則是後續處理packet的function。Bottom Half方面，linux kernel提供tasklet與workqueue協助處理。
+
+#### Tasklets

@@ -397,4 +397,59 @@ Bottom Half允許interrupt的發生，可能會執行wake up process、起動其
 
 以網卡為例，當接受到新packet，top half會先把NIC上的packet取出並交付給 protocol layer。Bottom half則是後續處理packet的function。Bottom Half方面，linux kernel提供tasklet與workqueue協助處理。
 
-#### Tasklets
+#### Tasklets
+{% method %}
+Tasklet是特蘇德function，執行時機是在系統認定的安全期。並且可以被多次schedule，但是嚴格遵守先後執行的順序，因此同一個tasklet不能被同時執行。在SMP上，多個tasklets可被分配到不同CPU執行，所以必須要lock共用的resource。
+{% sample lang="kernel 2.6" %}
+```c
+DECLARE_TASKLET(name, function, data);
+```
+必須要使用Marco來宣告。`name`是tasklet名稱，`function`是函式名稱，並可會得到一個unsigned long的parameter並回傳void，`data`是要傳給tasklet的unsigned long。
+{% endmethod %}  
+
+short module使用以下方式宣告`short_tasklet`是`short_do_tasklet`。
+```c
+void short_do_tasklet(unsigned long);
+DECLARE_TASKLET(short_tasklet, short_do_tasklet, 0);
+```
+```c
+irqreturn_t short_tl_interrupt(int irq, void *dev_id, struct pt_regs *regs)
+{
+ do_gettimeofday((struct timeval *) tv_head); /* cast to stop 'volatile' warning
+*/
+ short_incr_tv(&tv_head);
+ tasklet_schedule(&short_tasklet);
+ short_wq_count++; /* record that an interrupt arrived */
+ return IRQ_HANDLED;
+}
+```
+Handler(top half)會使用`tasklet_schedule(&short_tasklet);`來schedule。當OS恢復到非interrupt時，就會可執行`short_do_tasklet`。
+```c
+void short_do_tasklet (unsigned long unused)
+{
+ int savecount = short_wq_count, written;
+ short_wq_count = 0; /* we have already been removed from the queue */
+ /*
+ * The bottom half reads the tv array, filled by the top half,
+ * and prints it to the circular text buffer, which is then consumed
+ * by reading processes
+ */
+ /* First write the number of interrupts that occurred before this bh */
+ written = sprintf((char *)short_head,"bh after %6i\n",savecount);
+ short_incr_bp(&short_head, written);
+ /*
+ * Then, write the time values. Write exactly 16 bytes at a time,
+ * so it aligns with PAGE_SIZE
+ */
+ do {
+ written = sprintf((char *)short_head,"%08u.%06u\n",
+ (int)(tv_tail->tv_sec % 100000000),
+ (int)(tv_tail->tv_usec));
+ short_incr_bp(&short_head, written);
+ short_incr_tv(&tv_tail);
+ } while (tv_tail != tv_head);
+ wake_up_interruptible(&short_queue); /* awake any reading process */
+}
+```
+`short_do_tasklet`會記錄上次被呼叫到現在的interrupt次數。Driver必須要有應付在bottom half開始執行前有頻繁interrupt的準備
+

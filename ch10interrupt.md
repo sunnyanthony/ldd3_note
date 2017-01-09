@@ -453,4 +453,41 @@ void short_do_tasklet (unsigned long unused)
 ```
 `short_do_tasklet`會記錄上次被呼叫到現在的interrupt次數。Driver必須要有應付在bottom half開始執行前有頻繁interrupt的準備
 
-#### Workqueues
+#### Workqueues
+Workqueue在process context下運行，所以必須容許sleep，並且不允許與user space交換data。
+```c
+static struct work_struct short_wq;
+ /* this line is in short_init( ) */
+ INIT_WORK(&short_wq, (void (*)(struct work_struct *)) short_do_tasklet);
+```
+使用一個`work_struct`結構，並使用Marco `INIT_WORK`來初使化。
+```c
+irqreturn_t short_wq_interrupt(int irq, void *dev_id, struct pt_regs *regs)
+{
+ /* Grab the current time information. */
+ do_gettimeofday((struct timeval *) tv_head);
+ short_incr_tv(&tv_head);
+ /* Queue the bh. Don't worry about multiple enqueueing */
+ schedule_work(&short_wq);
+ short_wq_count++; /* record that an interrupt arrived */
+ return IRQ_HANDLED;
+}
+```
+使用workqueue時，short會改用`short_wq_interrupt`，並且這個top halt主要差別是改用`schedule_work`。
+
+---
+## Interrupt Sharing
+現今hardware容許多個device共享相同的IRQ。像是PCI device就必須要能夠共享interrupt才能夠使用。
+
+#### Installing a Shared Handler
+共享interrupt的ISR也是透過`request_irq`來install。但有兩點不同:
+* 取得IRQ必須設定flags的SA_SHIRQ bit
+* dev_id必須是unique，並且不能為NULL。
+  
+Kernel會記錄共用IRQ的各個ISR，並使用剛剛提到的dev_id來辨別。當使用request_irq時，若指定的IRQ還沒有註冊給別的ISR(interrupt line可使用)或IRQ的所有ISR皆註冊為shared，都可以成功取得IRQ。  
+
+當發生interrupt時，kernel會依序觸發IRQ上的每一個ISR，並將各自的dev_id分別傳送給ISR。重要的是這些ISR必須要能夠分變此interrupt是否適所屬的hardware所發出的，若不是的話，則回傳IRQ_NONE。最後有兩點需要注意:
+* 共享的IRQ是無法提供probe的方法，但是大多數工想IRQ的hardware都能夠告知他所使用的IRQ(可參考ch12 PCI)。
+* 不能動到`enable_irq`或`disable_irq`，否則會影響到共用IRQ的其他device。
+
+####Running the Handler

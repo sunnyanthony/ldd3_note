@@ -26,11 +26,12 @@ Major在傳統上是表示device所配合的driver。現在kernel允許多個dri
 
 {% method %}
 
-Device number在kernel是以`dev_t`來表示，但我們不應該假設device number的tpye，因此應該要借用linux提供的macro，MAJOR\(\)跟MINOR\(\)，透過macro可避免未來kernel變動時造成移植上的問題。
+Device number在kernel是以`dev_t`來表示，但我們不應該假設device number的tpye，因此應該要借用linux提供的macro，MAJOR\(\)跟MINOR\(\)，透過macro可避免未來kernel變動時造成移植上的問題。   
+若有需要將minor跟mijor合併，請使用MKDEV()這個macro。
 
 {% sample lang="kernel 2.6" %}
 
-```c
+``` c
 #include <linux/types.h>
 //    major       minor
 // |--12-bit--|---20-bit---|
@@ -38,10 +39,43 @@ Device number在kernel是以`dev_t`來表示，但我們不應該假設device nu
 #include <linux/kdev_t.h>
 MAJOR(dev_t dev);
 MINOR(dev_t dev);
+MKDEV(int major, int minor);
 ```
-
 {% sample lang="kernel 4.\*" %}
+``` c
+#include <linux/types.h>
+//    major       minor
+// |--12-bit--|---20-bit---|
 
+#include <linux/kdev_t.h>
+MAJOR(dev_t dev);
+MINOR(dev_t dev);
+MKDEV(int major, int minor);
+```
+{% endmethod %}
+
+### Allocating and Freeing Device Numbers
+{% method %}
+Device driver第一件事是取得一個或是多個device number。使用`register_chrdev_region`這個function。   
+可在`/proc/devices/`跟`sysfs`下出現。  
+不過kernel開發上還是建議使用動態配置，這樣可以減少device跟number之間的固定關係。可改用`alloc_chrdev_region`這個function。
+{% sample lang="kernel 2.6" %}
+
+``` c
+#include <linux/fs.h>
+int register_chrdev_region(dev_t first, unsigned int count,
+ char *name);
+```
+**first**是你所想要配置device number的region的起始位子。**count**是想要申請的連續編號總數。**name**則是你最終會獲取的device name。
+``` c
+int alloc_chrdev_region(dev_t *dev, unsigned int firstminor,
+ unsigned int count, char *name);
+```
+**dev**是當配置成功時，dev會持有region的第一個device number。**firstminor**是想要申請的第一個minor number(通常是0)。**count**是想要申請的連續編號總數。**name**則是你最終會獲取的device name。
+{% sample lang="kernel 4.\*" %}
+``` c
+
+```
 {% endmethod %}
 
 

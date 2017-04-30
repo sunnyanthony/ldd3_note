@@ -58,7 +58,7 @@ MKDEV(int major, int minor);
 {% method %}
 Device driver第一件事是取得一個或是多個device number。使用`register_chrdev_region`這個function。   
 可在`/proc/devices/`跟`sysfs`下出現。  
-不過kernel開發上還是建議使用動態配置，這樣可以減少device跟number之間的固定關係。可改用`alloc_chrdev_region`這個function。
+不過kernel開發上還是建議使用動態配置，這樣可以減少device跟number之間的固定關係。可改用`alloc_chrdev_region`這個function。最後不使用driver時，透過`unregister_chrdev_region`釋放device number。通常是在unload fuction裡面。
 {% sample lang="kernel 2.6" %}
 
 ``` c
@@ -72,6 +72,9 @@ int alloc_chrdev_region(dev_t *dev, unsigned int firstminor,
  unsigned int count, char *name);
 ```
 **dev**是當配置成功時，dev會持有region的第一個device number。**firstminor**是想要申請的第一個minor number(通常是0)。**count**是想要申請的連續編號總數。**name**則是你最終會獲取的device name。
+``` c
+void unregister_chrdev_region(dev_t first, unsigned int count);
+```
 {% sample lang="kernel 4.\*" %}
 ``` c
 

@@ -2,9 +2,9 @@
 
 ## Major and Minor Numbers
 
---------------------
+---
 
-Character device的access是透過file system上的name（special file、device file or node）。由下可知，
+Character device的access是透過file system上的name（special file、device file or node）。Device number是由major+minor所構成，可參考以下範例。
 
 ```
 ls -l /dev/ 
@@ -19,6 +19,32 @@ crw-rw-rw-  1 root     wheel           33,   0  4 28 10:02 autofs_homedirmounter
 crw-rw-rw-  1 root     wheel           31,   0  4 28 10:02 autofs_notrigger
 crw-rw-rw-  1 root     wheel           22,   6  4 28 10:02 autofs_nowait
 ```
+
+Major在傳統上是表示device所配合的driver。現在kernel允許多個driver共用一個major number，不過大部分還是會諄造船同上的一對一的編號。然而minor number是讓kernel用來表示哪個device的referred to。
+
+### The Internal Representation of Device Numbers
+
+{% method %}
+
+Device number在kernel是以`dev_t`來表示，但我們不應該假設device number的tpye，因此應該要借用linux提供的macro，MAJOR\(\)跟MINOR\(\)，透過macro可避免未來kernel變動時造成移植上的問題。
+
+{% sample lang="kernel 2.6" %}
+
+```c
+#include <linux/types.h>
+//    major       minor
+// |--12-bit--|---20-bit---|
+
+#include <linux/kdev_t.h>
+MAJOR(dev_t dev);
+MINOR(dev_t dev);
+```
+
+{% sample lang="kernel 4.\*" %}
+
+{% endmethod %}
+
+
 
 ## The Design of char device
 
@@ -46,10 +72,14 @@ crw-rw-rw-  1 root     wheel           22,   6  4 28 10:02 autofs_nowait
   * 一次只能有一個process執行open\(\)
 
 * scullpriv
+
   * 每個virtual console都可擁有私人的scullpriv
   * 各個virtual console都會得到不同的memory area
+
 * scullid
+
   * 若device已被佔用，試圖執行open則會發出Device Busy
+
 * scullwuid
   * 若device已被佔用，試圖執行open則會blocking到device被釋放為止
 

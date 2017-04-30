@@ -1,5 +1,25 @@
 # Char Device Driver
 
+## Major and Minor Numbers
+
+--------------------
+
+Character device的access是透過file system上的name（special file、device file or node）。由下可知，
+
+```
+ls -l /dev/ 
+total 0
+                                     major  minor
+crw-------  1 root     wheel           17,   1  4 28 17:18 afsc_type5
+crw-------  1 root     wheel           10,   0  4 28 10:02 auditpipe
+crw-r--r--  1 root     wheel            9,   3  4 28 10:02 auditsessions
+crw-------  1 root     wheel           21,   0  4 28 10:02 autofs
+crw-------  1 root     wheel           34,   0  4 28 10:02 autofs_control
+crw-rw-rw-  1 root     wheel           33,   0  4 28 10:02 autofs_homedirmounter
+crw-rw-rw-  1 root     wheel           31,   0  4 28 10:02 autofs_notrigger
+crw-rw-rw-  1 root     wheel           22,   6  4 28 10:02 autofs_nowait
+```
+
 ## The Design of char device
 
 ---
@@ -22,7 +42,9 @@
   * 這邊不使用hardware inperrutp來實作blocking/nonblocking的存取
 
 * scullsingle
+
   * 一次只能有一個process執行open\(\)
+
 * scullpriv
   * 每個virtual console都可擁有私人的scullpriv
   * 各個virtual console都會得到不同的memory area
@@ -32,6 +54,4 @@
   * 若device已被佔用，試圖執行open則會blocking到device被釋放為止
 
 這些driver在mechanism上都完全一樣\(abstract\)，只不過使用不同的policy。
-
-
 

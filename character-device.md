@@ -85,7 +85,7 @@ void unregister_chrdev_region(dev_t first, unsigned int count);
 目前常見的device都已經被記錄在`Documentation/devices.txt`當中。因此建議使用`alloc_chrdev_region`來分配mijor nember。但有一缺點是，無法事先建立/dev/node，這是因為動態配置無法保證每次的number都相同。
 {% sample lang="kernel 2.6" %}
 ``` c 
-在翻譯版本中提到，使用devfs跟udev可以解決。目前udev是devfs的user-space的解決方法。是使用kernel發出hotplug出法user-space的process，此process會從sysfs取得新的device的資訊，並動態建立device node。
+在翻譯版本中提到，使用devfs跟udev可以解決。目前udev是devfs的user-space的解決方法。是使用kernel發出hotplug出法user-space的process，此process會從sysfs取得新的device的資訊，並動態建立device node。最新狀況是udev已經被整理到systemd當中，有興趣的可以參考以下連結：http://man7.org/linux/man-pages/man7/udev.7.html。
 ```
 
 {% endmethod %}

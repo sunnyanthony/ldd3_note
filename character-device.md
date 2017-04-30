@@ -80,8 +80,15 @@ void unregister_chrdev_region(dev_t first, unsigned int count);
 
 ```
 {% endmethod %}
+### Dynamic Allocation of Major Numbers
+{% method %}
+目前常見的device都已經被記錄在`Documentation/devices.txt`當中。因此建議使用`alloc_chrdev_region`來分配mijor nember。但有一缺點是，無法事先建立/dev/node，這是因為動態配置無法保證每次的number都相同。
+{% sample lang="kernel 2.6" %}
+``` c 
+在翻譯版本中提到，
+```
 
-
+{% endmethod %}
 
 ## The Design of char device
 

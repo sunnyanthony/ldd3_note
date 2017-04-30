@@ -87,7 +87,23 @@ void unregister_chrdev_region(dev_t first, unsigned int count);
 ``` c 
 在翻譯版本中提到，使用devfs跟udev可以解決。目前udev是devfs的user-space的解決方法。是使用kernel發出hotplug出法user-space的process，此process會從sysfs取得新的device的資訊，並動態建立device node。最新狀況是udev已經被整理到systemd當中，有興趣的可以參考以下連結：http://man7.org/linux/man-pages/man7/udev.7.html。
 ```
-
+{% endmethod %}
+{% method %}
+旁邊可以看到scull是如何決定mijor number。
+{% sample lang="kernel 2.6" %}
+``` c
+if (scull_major) {
+ dev = MKDEV(scull_major, scull_minor);
+ result = register_chrdev_region(dev, scull_nr_devs, "scull");
+} else {
+ result = alloc_chrdev_region(&dev, scull_minor, scull_nr_devs, "scull");
+ scull_major = MAJOR(dev);
+}
+if (result < 0) {
+ printk(KERN_WARNING "scull: can't get major %d\n", scull_major);
+ return result;
+}
+```
 {% endmethod %}
 
 ## The Design of char device

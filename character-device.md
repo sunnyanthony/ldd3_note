@@ -385,7 +385,6 @@ void cdev_init(struct cdev *cdev, struct file_operations *fops);
 {% method %}
 最後一個步驟是使用cdev_add()將cdev加入kernel。
 {% sample lang="kernel 2.6" %}
-
 ``` c
 #include <linux/cdev.h>
 int cdev_add(struct cdev *dev, dev_t num, unsigned int count)

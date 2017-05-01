@@ -337,3 +337,16 @@ struct inode {
          void                    *i_private; /* fs or device private pointer */
  };
 ```
+
+scull divice driver指實作最重要的methods，file_operations初始化如下:
+``` c 
+struct file_operations scull_fops = {
+    .owner =    THIS_MODULE,
+    .llseek =   scull_llseek,
+    .read =     scull_read,
+    .write =    scull_write,
+    .unlocked_ioctl =    scull_ioctl,
+    .open =     scull_open,
+    .release =  scull_release,
+};
+```

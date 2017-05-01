@@ -337,7 +337,7 @@ struct inode {
  };
 ```
 
-scull divice driver指實作最重要的methods，file_operations初始化如下:
+scull divice driver5只實作最重要的methods，file_operations初始化如下:
 ``` c 
 struct file_operations scull_fops = {
     .owner =    THIS_MODULE,
@@ -389,7 +389,7 @@ void cdev_init(struct cdev *cdev, struct file_operations *fops);
 #include <linux/cdev.h>
 int cdev_add(struct cdev *dev, dev_t num, unsigned int count)
 ```
-**deev**是設定好的cdev structure，**num**是第一個device number，**count*是device number的總數。
+**dev**是設定好的cdev structure，**num**是第一個device number，**count**是device number的總數。
 {% sample lang="kernel 4.\*" %}
 ``` c
 

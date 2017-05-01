@@ -146,3 +146,7 @@ if (result < 0) {
 這些driver在mechanism上都完全一樣\(abstract\)，只不過使用不同的policy。
 
 ## Some Important Data Structure
+Device主要會涉及三種data structure:
+* file
+* file_operations
+* inode

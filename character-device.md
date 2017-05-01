@@ -21,7 +21,6 @@ crw-rw-rw-  1 root     wheel           22,   6  4 28 10:02 autofs_nowait
 ```
 
 Major在傳統上是表示device所配合的driver。現在kernel允許多個driver共用一個major number，不過大部分還是會諄造船同上的一對一的編號。然而minor number是讓kernel用來表示哪個device的referred to。
-
 ### The Internal Representation of Device Numbers
 
 {% method %}
@@ -350,3 +349,52 @@ struct file_operations scull_fops = {
     .release =  scull_release,
 };
 ```
+
+## Char Device Registration
+------
+
+{% method %}
+Kernel主要是使用struct cdev代表char device。若要讓kernel操作device1，就必須註冊一個以上的cdev。並使用cdev_alloc()配置，並將cdev->ops指向f_ops。
+{% sample lang="kernel 2.6" %}
+
+``` c
+#include <linux/cdev.h>
+struct cdev *my_cdev=cdev_alloc();
+my_cdev->ops=&my_fops;
+```
+{% sample lang="kernel 4.\*" %}
+``` c
+
+```
+{% endmethod %}
+
+{% method %}
+Scull需要將cdev放入設計的特殊data structure，因此在這種特殊情況，需要使用cdev_init()來得到cdev。
+{% sample lang="kernel 2.6" %}
+
+``` c
+#include <linux/cdev.h>
+void cdev_init(struct cdev *cdev, struct file_operations *fops);
+```
+{% sample lang="kernel 4.\*" %}
+``` c
+
+```
+{% endmethod %}
+這邊的cdev->owner跟file_operations一樣被設定為`THIS_MODULE`。
+{% method %}
+最後一個步驟是使用cdev_add()將cdev加入kernel。
+{% sample lang="kernel 2.6" %}
+
+``` c
+#include <linux/cdev.h>
+int cdev_add(struct cdev *dev, dev_t num, unsigned int count)
+```
+**deev**是設定好的cdev structure，**num**是第一個device number，**count*是device number的總數。
+{% sample lang="kernel 4.\*" %}
+``` c
+
+```
+{% endmethod %}
+
+

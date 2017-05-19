@@ -13,6 +13,9 @@
   * 可看下方顯示：
     ![](/assets/螢幕快照 2017-05-19 下午5.06.50.png)
 
+* TTY總共有三層架構，可分為tty core, tty line discipline以及tty driver。
+  ![](/assets/螢幕快照 2017-05-19 下午5.43.03.png)
+
 ---
 
 ## Tiny TTY
@@ -24,7 +27,6 @@ TTY的主要driver都是由tty_driver這個資料結構提供。
 #include <linux/tty_driver.h>
 struct tty_driver
 ```
-{% sample lang="kernel 4.* " %}
 
 {% endmethod %}
 

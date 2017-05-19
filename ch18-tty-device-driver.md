@@ -17,7 +17,7 @@
 
 ## Tiny TTY
 {% method %}
-
+TTY device driver透過`tty_driver`跟TTY core進行register跟unregister。
 {% sample lang="kernel 2.6" %}
 TTY的主要driver都是由tty_driver這個資料結構提供。
 ``` c

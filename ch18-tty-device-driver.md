@@ -43,7 +43,32 @@ lines是要提供tty device driver的device number。
 {% method %}
 取得了`tty_driver`後，需要設定適當的初始化。可以先看下方的structure再參考右邊初始化需做哪些設定。
 * 下方的是tty_driver結構，設定後須透過`extern void tty_set_operations(struct tty_driver *driver,const struct tty_operations *op);`完成初始化。
-
+{% sample lang="kernel 2.6" %}
+``` C
+#include <linux/tty_driver.h>
+static struct tty_operations serial_ops = {
+ .open = tiny_open,
+ .close = tiny_close,
+ .write = tiny_write,
+ .write_room = tiny_write_room,
+ .set_termios = tiny_set_termios,
+};
+...
+ /* initialize the tty driver */
+ tiny_tty_driver->owner = THIS_MODULE;
+ tiny_tty_driver->driver_name = "tiny_tty";
+ tiny_tty_driver->name = "ttty";
+ tiny_tty_driver->devfs_name = "tts/ttty%d";
+ tiny_tty_driver->major = TINY_TTY_MAJOR,
+ tiny_tty_driver->type = TTY_DRIVER_TYPE_SERIAL,
+ tiny_tty_driver->subtype = SERIAL_TYPE_NORMAL,
+ tiny_tty_driver->flags = TTY_DRIVER_REAL_RAW | TTY_DRIVER_NO_DEVFS,
+ tiny_tty_driver->init_termios = tty_std_termios;
+ tiny_tty_driver->init_termios.c_cflag = B9600 | CS8 | CREAD | HUPCL | CLOCAL;
+ tty_set_operations(tiny_tty_driver, &serial_ops);
+```
+lines是要提供tty device driver的device number。
+{% endmethod %}
 ``` C
 struct tty_driver {
 	int	magic;		/* magic number for this structure */
@@ -126,32 +151,6 @@ struct tty_operations {
 	const struct file_operations *proc_fops;
 };
 ```
-{% sample lang="kernel 2.6" %}
-``` C
-#include <linux/tty_driver.h>
-static struct tty_operations serial_ops = {
- .open = tiny_open,
- .close = tiny_close,
- .write = tiny_write,
- .write_room = tiny_write_room,
- .set_termios = tiny_set_termios,
-};
-...
- /* initialize the tty driver */
- tiny_tty_driver->owner = THIS_MODULE;
- tiny_tty_driver->driver_name = "tiny_tty";
- tiny_tty_driver->name = "ttty";
- tiny_tty_driver->devfs_name = "tts/ttty%d";
- tiny_tty_driver->major = TINY_TTY_MAJOR,
- tiny_tty_driver->type = TTY_DRIVER_TYPE_SERIAL,
- tiny_tty_driver->subtype = SERIAL_TYPE_NORMAL,
- tiny_tty_driver->flags = TTY_DRIVER_REAL_RAW | TTY_DRIVER_NO_DEVFS,
- tiny_tty_driver->init_termios = tty_std_termios;
- tiny_tty_driver->init_termios.c_cflag = B9600 | CS8 | CREAD | HUPCL | CLOCAL;
- tty_set_operations(tiny_tty_driver, &serial_ops);
-```
-lines是要提供tty device driver的device number。
-{% endmethod %}
 
 
 
